@@ -1,0 +1,16 @@
+R_DEF: Internal format may change without notice
+local
+id apiKeyInput
+id autoSendCheckbox
+id flashingIndicator
+id mainLayout
+id recordButton
+id saveButton
+id sendButton
+id settingsButton
+id stopButton
+id timerTextView
+id whisperUrlInput
+layout activity_main
+layout activity_settings
+style Theme.VoiceToInputStick

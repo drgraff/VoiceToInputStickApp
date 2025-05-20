@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "com.example.voicetoinputstick.app-merged_res-29:/layout_activity_settings.xml.flat",
+        "source": "com.example.voicetoinputstick.app-main-31:/layout/activity_settings.xml"
+    },
+    {
+        "merged": "com.example.voicetoinputstick.app-merged_res-29:/layout_activity_main.xml.flat",
+        "source": "com.example.voicetoinputstick.app-main-31:/layout/activity_main.xml"
+    }
+]
