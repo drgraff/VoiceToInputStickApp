@@ -3,6 +3,7 @@ package com.example.voicetoinputstick
 import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -13,6 +14,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var languageInput: EditText
     private lateinit var autoSendCheckbox: CheckBox
     private lateinit var inputStickCheckbox: CheckBox
+    private lateinit var darkModeCheckbox: CheckBox
     private lateinit var saveButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,6 +29,7 @@ class SettingsActivity : AppCompatActivity() {
         languageInput = findViewById(R.id.languageInput)
         autoSendCheckbox = findViewById(R.id.autoSendCheckbox)
         inputStickCheckbox = findViewById(R.id.inputStickCheckbox)
+        darkModeCheckbox = findViewById(R.id.darkModeCheckbox)
         saveButton = findViewById(R.id.saveButton)
 
         // Populate UI with existing settings
@@ -37,6 +40,7 @@ class SettingsActivity : AppCompatActivity() {
         languageInput.setText(SettingsManager.storedLanguage)
         autoSendCheckbox.isChecked = SettingsManager.isAutoSendEnabled()
         inputStickCheckbox.isChecked = SettingsManager.isInputStickEnabled()
+        darkModeCheckbox.isChecked = SettingsManager.isDarkModeEnabled()
 
         // Save settings on button click
         saveButton.setOnClickListener {
@@ -47,6 +51,20 @@ class SettingsActivity : AppCompatActivity() {
             SettingsManager.storedLanguage = languageInput.text.toString()
             SettingsManager.autoSendEnabled = autoSendCheckbox.isChecked
             SettingsManager.inputStickEnabled = inputStickCheckbox.isChecked
+            
+            // Save dark mode setting and apply it immediately
+            val darkModeWasEnabled = SettingsManager.isDarkModeEnabled()
+            SettingsManager.darkModeEnabled = darkModeCheckbox.isChecked
+            
+            // Apply theme change if the dark mode setting changed
+            if (darkModeWasEnabled != darkModeCheckbox.isChecked) {
+                if (darkModeCheckbox.isChecked) {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                } else {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                }
+            }
+            
             finish()  // Close the activity
         }
     }

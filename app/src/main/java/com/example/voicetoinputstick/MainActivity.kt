@@ -18,6 +18,7 @@ import org.json.JSONObject
 import java.util.concurrent.TimeUnit
 import com.inputstick.api.basic.InputStickHID
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
@@ -52,6 +53,16 @@ class MainActivity : AppCompatActivity() {
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Init settings manager first
+        SettingsManager.init(applicationContext)
+        
+        // Apply dark mode setting
+        if (SettingsManager.isDarkModeEnabled()) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        }
+        
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
@@ -62,8 +73,8 @@ class MainActivity : AppCompatActivity() {
         // Initialize InputStick using the official API call
         InputStickHID.connect(application)
 
-        SettingsManager.init(applicationContext)
-
+        // Setting manager is already initialized at the start of onCreate
+        
         // Initialize UI components
         recordButton = findViewById(R.id.recordButton)
         stopButton = findViewById(R.id.stopButton)
