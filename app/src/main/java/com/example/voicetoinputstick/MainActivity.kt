@@ -148,8 +148,55 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun sendToWhisper(filePath: String) {
-        // Your implementation for sending audio to Whisper or other processing
-        // When ready to send text to InputStick, use:
-        // InputStickWrapper.sendText(this, recognizedText)
+        if (filePath.isEmpty()) {
+            Toast.makeText(this, "No recording found", Toast.LENGTH_SHORT).show()
+            return
+        }
+        
+        Toast.makeText(this, "Processing audio...", Toast.LENGTH_SHORT).show()
+        
+        coroutineScope.launch {
+            val whisperService = WhisperService(this@MainActivity)
+            val transcriptionResult = whisperService.transcribeAudio(filePath)
+            
+            transcriptionResult.fold(
+                onSuccess = { transcription ->
+                    // Show transcription to user
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(this@MainActivity, "Transcription: $transcription", Toast.LENGTH_LONG).show()
+                    }
+                    
+                    // Send to ChatGPT
+                    val chatGptService = ChatGptService(this@MainActivity)
+                    val chatResult = chatGptService.getChatResponse(transcription)
+                    
+                    chatResult.fold(
+                        onSuccess = { chatResponse ->
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(this@MainActivity, "Response received from ChatGPT", Toast.LENGTH_SHORT).show()
+                                
+                                // Check if InputStick is enabled
+                                if (SettingsManager.isInputStickEnabled()) {
+                                    // Send to InputStick
+                                    InputStickWrapper.sendText(this@MainActivity, chatResponse)
+                                } else {
+                                    Toast.makeText(this@MainActivity, "InputStick is disabled", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        },
+                        onFailure = { error ->
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(this@MainActivity, "ChatGPT error: ${error.message}", Toast.LENGTH_LONG).show()
+                            }
+                        }
+                    )
+                },
+                onFailure = { error ->
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(this@MainActivity, "Transcription error: ${error.message}", Toast.LENGTH_LONG).show()
+                    }
+                }
+            )
+        }
     }
 }

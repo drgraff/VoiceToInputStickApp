@@ -6,27 +6,24 @@ VoiceToInputStickApp is an Android application that enables voice-driven transcr
 
 ## ✨ Features
 
-- 🎙️ Record audio with microphone functionality
+- 🎙️ Record audio and transcribe using OpenAI Whisper API
+- 🤖 Send transcribed text to ChatGPT (configurable model)
+- ⌨️ Type response to PC via InputStick USB HID emulation
 - ⏱️ Visual timer + flashing indicator while recording
 - 📨 Auto-send toggle after recording (configurable)
 - ✅ Persistent app settings (API key, Whisper URL, model, language, etc.)
 - 🔘 Toggle InputStick functionality on/off
 - ⚙️ Settings UI with input fields for OpenAI and Whisper configuration
 
-### 🚧 Planned Features (Coming Soon)
-- 🎙️ Transcribe audio using OpenAI Whisper API
-- 🤖 Send transcribed text to ChatGPT (configurable model)
-- ⌨️ Type response to PC via InputStick USB HID emulation
-
 ---
 
 ## 📸 UI Overview
 
 - **Start Recording** button — begins capturing audio
-- **Stop Recording** button — ends capture
-- **Send to Whisper** button — prepared for future Whisper integration
+- **Stop Recording** button — ends capture and optionally auto-sends
+- **Send to Whisper** button — manually sends last recording
 - **Settings** — configure API key, model, Whisper endpoint, language, InputStick toggle
-- **Checkbox** — toggle auto-send functionality (for future implementation)
+- **Checkbox** — enable/disable auto-send after recording
 - **Timer and Red Dot** — visible feedback during recording
 
 ---
@@ -41,6 +38,8 @@ VoiceToInputStickApp/
 │   │   │   ├── MainActivity.kt
 │   │   │   ├── SettingsActivity.kt
 │   │   │   ├── SettingsManager.kt
+│   │   │   ├── WhisperService.kt
+│   │   │   ├── ChatGptService.kt
 │   │   │   └── InputStickWrapper.kt
 │   │   └── res/layout/
 │   │       ├── activity_main.xml
@@ -98,7 +97,7 @@ implementation(project(":InputStickAPI"))
 
 ---
 
-## 📤 Sending Flow (Planned)
+## 📤 Sending Flow
 
 ```plaintext
 [Voice] → [Whisper API] → [Transcript] → [ChatGPT API] → [Response]
@@ -107,16 +106,14 @@ implementation(project(":InputStickAPI"))
                                              [InputStick]
 ```
 
-Note: This flow represents the intended future functionality. Current implementation only includes recording audio.
-
 ---
 
 ## 🚧 Roadmap
 
 - [x] Settings screen (API key, model, language)
-- [ ] Whisper API integration
-- [ ] ChatGPT API integration
-- [ ] InputStick text output support
+- [x] Whisper API integration
+- [x] ChatGPT API integration
+- [x] InputStick text output support
 - [ ] Whisper local fallback (offline STT)
 - [ ] Multi-language support
 - [ ] Chat history and export
