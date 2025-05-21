@@ -9,10 +9,10 @@ VoiceToInputStickApp is an Android application that enables voice-driven transcr
 - 🎙️ Record audio and transcribe using OpenAI Whisper API
 - 🤖 Send transcribed text to ChatGPT (configurable model)
 - ⌨️ Type response to PC via InputStick USB HID emulation
+- ⏱️ Visual timer + flashing indicator while recording
+- 📨 Auto-send toggle after recording (configurable)
 - ✅ Persistent app settings (API key, Whisper URL, model, language, etc.)
 - 🔘 Toggle InputStick functionality on/off
-- ⏱️ Visual timer + flashing indicator while recording
-- 📨 Auto-send transcription after stop (configurable)
 - ⚙️ Settings UI with input fields for OpenAI and Whisper configuration
 
 ---
@@ -111,7 +111,8 @@ implementation(project(":InputStickAPI"))
 ## 🚧 Roadmap
 
 - [x] Settings screen (API key, model, language)
-- [x] Whisper and GPT integration
+- [x] Whisper API integration
+- [x] ChatGPT API integration
 - [x] InputStick text output support
 - [ ] Whisper local fallback (offline STT)
 - [ ] Multi-language support
