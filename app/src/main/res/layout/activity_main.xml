@@ -34,8 +34,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="24dp"
-                android:gravity="center_horizontal"
-                android:background="#FAFAFA">
+                android:gravity="center_horizontal">
 
                 <TextView
                     android:id="@+id/flashingIndicator"
@@ -43,7 +42,7 @@
                     android:layout_height="wrap_content"
                     android:text=""
                     android:textSize="24sp"
-                    android:textColor="#FF0000"
+                    android:textColor="#757575"
                     android:padding="8dp" />
 
                 <TextView
