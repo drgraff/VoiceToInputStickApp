@@ -18,7 +18,6 @@ import org.json.JSONObject
 import java.util.concurrent.TimeUnit
 import com.inputstick.api.ConnectionManager
 
-
 class MainActivity : AppCompatActivity() {
     private lateinit var recordButton: Button
     private lateinit var stopButton: Button
@@ -72,6 +71,12 @@ class MainActivity : AppCompatActivity() {
         flashingIndicator.text = ""
 
         checkPermissions()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Refresh UI in case settings changed
+        autoSendCheckbox.isChecked = SettingsManager.isAutoSendEnabled()
     }
 
     private fun checkPermissions() {
@@ -146,7 +151,7 @@ class MainActivity : AppCompatActivity() {
         flashingJob = coroutineScope.launch {
             var visible = false
             while (isRecording) {
-                flashingIndicator.text = if (visible) "●" else ""
+                flashingIndicator.text = if (visible) "\u25cf" else ""
                 flashingIndicator.setTextColor(android.graphics.Color.RED)
                 visible = !visible
                 delay(500)
@@ -167,6 +172,8 @@ class MainActivity : AppCompatActivity() {
             try {
                 val apiKey = SettingsManager.getOpenAiApiKey()
                 val model = SettingsManager.getModel()
+                val whisperUrl = SettingsManager.getWhisperUrl()
+                val language = SettingsManager.getLanguage()
                 val client = OkHttpClient.Builder().connectTimeout(60, TimeUnit.SECONDS).build()
                 val file = File(filePath)
                 val mediaType = MediaType.parse("audio/m4a")
@@ -174,16 +181,21 @@ class MainActivity : AppCompatActivity() {
                 val body = MultipartBody.Builder().setType(MultipartBody.FORM)
                     .addFormDataPart("model", "whisper-1")
                     .addFormDataPart("file", file.name, RequestBody.create(mediaType, file))
+                    .addFormDataPart("language", language)
                     .build()
 
                 val request = Request.Builder()
-                    .url("https://api.openai.com/v1/audio/transcriptions")
+                    .url(whisperUrl)
                     .addHeader("Authorization", "Bearer $apiKey")
                     .post(body)
                     .build()
 
                 val response = client.newCall(request).execute()
                 val responseBody = response.body()?.string()
+
+                if (!response.isSuccessful) {
+                    throw Exception("Whisper error: ${response.code()} ${response.message()}\n$responseBody")
+                }
 
                 val transcription = JSONObject(responseBody ?: "{}").optString("text")
 
@@ -203,18 +215,21 @@ class MainActivity : AppCompatActivity() {
     private fun sendToChatGPT(transcription: String) {
         val apiKey = SettingsManager.getOpenAiApiKey()
         val model = SettingsManager.getModel()
+        val chatGptUrl = SettingsManager.getChatGptUrl()
         val client = OkHttpClient()
 
-        val json = """{
-            "model": "$model",
-            "messages": [
-              {"role": "user", "content": "${transcription.replace("\"", "\\\"")}"}
-            ]
-        }"""
+        val json = """
+            {
+                "model": "$model",
+                "messages": [
+                  {"role": "user", "content": "${transcription.replace("\"", "\\\"")}"}
+                ]
+            }
+        """.trimIndent()
 
         val requestBody = RequestBody.create(MediaType.parse("application/json"), json)
         val request = Request.Builder()
-            .url("https://api.openai.com/v1/chat/completions")
+            .url(chatGptUrl)
             .addHeader("Authorization", "Bearer $apiKey")
             .post(requestBody)
             .build()
@@ -223,6 +238,11 @@ class MainActivity : AppCompatActivity() {
             try {
                 val response = client.newCall(request).execute()
                 val responseText = response.body()?.string()
+
+                if (!response.isSuccessful) {
+                    throw Exception("ChatGPT error: ${response.code()} ${response.message()}\n$responseText")
+                }
+
                 val jsonResponse = JSONObject(responseText ?: "")
                 val reply = jsonResponse.getJSONArray("choices")
                     .getJSONObject(0).getJSONObject("message")
@@ -242,11 +262,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun sendToInputStick(text: String) {
-        try {
-            InputStickWrapper.sendText(applicationContext, text)
-            Toast.makeText(this, "Sent to InputStick", Toast.LENGTH_SHORT).show()
-        } catch (e: Exception) {
-            Toast.makeText(this, "InputStick error: ${e.message}", Toast.LENGTH_LONG).show()
+        if (SettingsManager.isInputStickEnabled()) {
+            try {
+                InputStickWrapper.sendText(applicationContext, text)
+                Toast.makeText(this, "Sent to InputStick", Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                Toast.makeText(this, "InputStick error: ${e.message}", Toast.LENGTH_LONG).show()
+            }
         }
     }
 }

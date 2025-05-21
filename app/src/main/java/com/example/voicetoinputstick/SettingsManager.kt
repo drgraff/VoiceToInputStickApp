@@ -11,6 +11,7 @@ object SettingsManager {
     private const val KEY_AUTO_SEND = "auto_send"
     private const val KEY_INPUTSTICK_ENABLED = "inputstick_enabled"
     private const val KEY_WHISPER_URL = "whisper_url"
+    private const val KEY_CHATGPT_URL = "chatgpt_url"
 
     private lateinit var prefs: SharedPreferences
 
@@ -42,23 +43,19 @@ object SettingsManager {
         get() = prefs.getString(KEY_WHISPER_URL, "https://api.openai.com/v1/audio/transcriptions") ?: "https://api.openai.com/v1/audio/transcriptions"
         set(value) = prefs.edit().putString(KEY_WHISPER_URL, value).apply()
 
-    fun isAutoSendEnabled(): Boolean {
-        return autoSendToWhisper
-    }
+    var chatGptUrl: String
+        get() = prefs.getString(KEY_CHATGPT_URL, "https://api.openai.com/v1/chat/completions") ?: "https://api.openai.com/v1/chat/completions"
+        set(value) = prefs.edit().putString(KEY_CHATGPT_URL, value).apply()
 
-    fun setAutoSendEnabled(enabled: Boolean) {
-        autoSendToWhisper = enabled
-    }
+    fun isAutoSendEnabled(): Boolean = autoSendToWhisper
+    fun setAutoSendEnabled(enabled: Boolean) { autoSendToWhisper = enabled }
 
-    fun getOpenAiApiKey(): String {
-        return apiKey ?: ""
-    }
+    fun isInputStickEnabled(): Boolean = inputStickEnabled
+    fun setInputStickEnabled(enabled: Boolean) { inputStickEnabled = enabled }
 
-    fun getModel(): String {
-        return model ?: "gpt-3.5-turbo"
-    }
-
-    fun getWhisperUrl(): String {
-        return whisperUrl
-    }
+    fun getOpenAiApiKey(): String = apiKey ?: ""
+    fun getModel(): String = model ?: "gpt-3.5-turbo"
+    fun getLanguage(): String = language ?: "en"
+    fun getWhisperUrl(): String = whisperUrl
+    fun getChatGptUrl(): String = chatGptUrl
 }

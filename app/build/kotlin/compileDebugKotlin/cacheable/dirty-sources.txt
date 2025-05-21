@@ -1,4 +1,0 @@
-/home/owner/Documents/AndroidProjects/VoiceToInputStickApp_UpdatedRecordingUI/app/src/main/java/com/example/voicetoinputstick/SettingsManager.kt
-/home/owner/Documents/AndroidProjects/VoiceToInputStickApp_UpdatedRecordingUI/app/src/main/java/com/example/voicetoinputstick/MainActivity.kt
-/home/owner/Documents/AndroidProjects/VoiceToInputStickApp_UpdatedRecordingUI/app/src/main/java/com/example/voicetoinputstick/InputStickWrapper.kt
-/home/owner/Documents/AndroidProjects/VoiceToInputStickApp_UpdatedRecordingUI/app/src/main/java/com/example/voicetoinputstick/SettingsActivity.kt
