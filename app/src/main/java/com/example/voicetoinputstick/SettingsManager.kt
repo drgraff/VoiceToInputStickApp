@@ -12,6 +12,15 @@ object SettingsManager {
     private const val KEY_INPUTSTICK_ENABLED = "inputstick_enabled"
     private const val KEY_WHISPER_URL = "whisper_url"
     private const val KEY_CHATGPT_URL = "chatgpt_url"
+    
+    // List of available OpenAI models
+    val AVAILABLE_MODELS = listOf(
+        "gpt-4",
+        "gpt-4-turbo",
+        "gpt-4o",
+        "gpt-3.5-turbo",
+        "gpt-3.5-turbo-instruct"
+    )
 
     private lateinit var prefs: SharedPreferences
 
@@ -31,7 +40,11 @@ object SettingsManager {
         get() = prefs.getString(KEY_MODEL, "gpt-3.5-turbo")
         set(value) = prefs.edit().putString(KEY_MODEL, value).apply()
 
-    fun getModel(): String = storedModel ?: "gpt-3.5-turbo"
+    fun getModel(): String {
+        val model = storedModel ?: "gpt-3.5-turbo"
+        // If the stored model is not in the available models list, return the default model
+        return if (model in AVAILABLE_MODELS) model else "gpt-3.5-turbo"
+    }
 
     // Language
     var storedLanguage: String?
