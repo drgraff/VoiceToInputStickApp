@@ -63,7 +63,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         autoSendCheckbox.setOnCheckedChangeListener { _, isChecked ->
-            SettingsManager.setAutoSendEnabled(isChecked)
+            SettingsManager.autoSendEnabled = isChecked
         }
 
         stopButton.isEnabled = false

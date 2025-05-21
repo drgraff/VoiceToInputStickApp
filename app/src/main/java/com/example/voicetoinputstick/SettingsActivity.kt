@@ -45,8 +45,8 @@ class SettingsActivity : AppCompatActivity() {
             SettingsManager.storedChatGptUrl = chatGptUrlInput.text.toString()
             SettingsManager.storedModel = modelInput.text.toString()
             SettingsManager.storedLanguage = languageInput.text.toString()
-            SettingsManager.setAutoSendEnabled(autoSendCheckbox.isChecked)
-            SettingsManager.setInputStickEnabled(inputStickCheckbox.isChecked)
+            SettingsManager.autoSendEnabled = autoSendCheckbox.isChecked
+            SettingsManager.inputStickEnabled = inputStickCheckbox.isChecked
             finish()  // Close the activity
         }
     }
