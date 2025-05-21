@@ -1,9 +1,15 @@
 package com.example.voicetoinputstick
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.*
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.widget.Toolbar
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
+import com.google.android.material.navigation.NavigationView
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -16,10 +22,49 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var inputStickCheckbox: CheckBox
     private lateinit var darkModeCheckbox: CheckBox
     private lateinit var saveButton: Button
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var navigationView: NavigationView
+    private lateinit var toolbar: Toolbar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
+
+        // Set up toolbar
+        toolbar = findViewById(R.id.toolbar)
+        setSupportActionBar(toolbar)
+
+        // Initialize navigation drawer components
+        drawerLayout = findViewById(R.id.drawer_layout)
+        navigationView = findViewById(R.id.nav_view)
+
+        // Set up the navigation drawer
+        val toggle = ActionBarDrawerToggle(
+            this, 
+            drawerLayout, 
+            toolbar, 
+            R.string.navigation_drawer_open, 
+            R.string.navigation_drawer_close
+        )
+        drawerLayout.addDrawerListener(toggle)
+        toggle.syncState()
+
+        // Set up navigation item click listener
+        navigationView.setNavigationItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.nav_home -> {
+                    // Go to main activity
+                    startActivity(Intent(this, MainActivity::class.java))
+                    finish() // Close this activity
+                }
+                R.id.nav_settings -> {
+                    // We're already on settings screen, just close drawer
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                }
+            }
+            drawerLayout.closeDrawer(GravityCompat.START)
+            true
+        }
 
         // Initialize UI elements
         apiKeyInput = findViewById(R.id.apiKeyInput)
@@ -66,6 +111,15 @@ class SettingsActivity : AppCompatActivity() {
             }
             
             finish()  // Close the activity
+        }
+    }
+
+    override fun onBackPressed() {
+        // Close drawer on back press if it's open
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START)
+        } else {
+            super.onBackPressed()
         }
     }
 }
