@@ -23,64 +23,153 @@
                 android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar" />
         </com.google.android.material.appbar.AppBarLayout>
 
-        <LinearLayout
-            android:id="@+id/mainLayout"
+        <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:padding="24dp"
-            android:gravity="center_horizontal"
-            android:background="#FAFAFA"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-            <TextView
-                android:id="@+id/flashingIndicator"
-                android:layout_width="wrap_content"
+            
+            <LinearLayout
+                android:id="@+id/mainLayout"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text=""
-                android:textSize="24sp"
-                android:textColor="#FF0000"
-                android:padding="8dp" />
+                android:orientation="vertical"
+                android:padding="24dp"
+                android:gravity="center_horizontal"
+                android:background="#FAFAFA">
 
-            <TextView
-                android:id="@+id/timerTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="00:00"
-                android:textSize="32sp"
-                android:textStyle="bold"
-                android:padding="16dp" />
+                <TextView
+                    android:id="@+id/flashingIndicator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textSize="24sp"
+                    android:textColor="#FF0000"
+                    android:padding="8dp" />
 
-            <Button
-                android:id="@+id/recordButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Start Recording"
-                android:layout_marginTop="16dp" />
+                <TextView
+                    android:id="@+id/timerTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="00:00"
+                    android:textSize="32sp"
+                    android:textStyle="bold"
+                    android:padding="16dp" />
 
-            <Button
-                android:id="@+id/stopButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Stop Recording"
-                android:layout_marginTop="12dp"
-                android:enabled="false" />
+                <Button
+                    android:id="@+id/recordButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Start Recording"
+                    android:layout_marginTop="16dp" />
 
-            <Button
-                android:id="@+id/sendButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Send to Whisper"
-                android:layout_marginTop="12dp" />
+                <Button
+                    android:id="@+id/stopButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Stop Recording"
+                    android:layout_marginTop="12dp"
+                    android:enabled="false" />
 
-            <CheckBox
-                android:id="@+id/autoSendCheckbox"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Auto-send to Whisper after recording"
-                android:layout_marginTop="24dp" />
+                <Button
+                    android:id="@+id/sendButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Send to Whisper"
+                    android:layout_marginTop="12dp" />
 
-        </LinearLayout>
+                <CheckBox
+                    android:id="@+id/autoSendCheckbox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Auto-send to Whisper after recording"
+                    android:layout_marginTop="24dp" />
+
+                <!-- Whisper Transcription Section -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Whisper Transcription"
+                    android:textStyle="bold"
+                    android:textSize="18sp"
+                    android:layout_marginTop="24dp" />
+
+                <EditText
+                    android:id="@+id/transcriptionEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="100dp"
+                    android:background="@android:drawable/editbox_background"
+                    android:padding="8dp"
+                    android:gravity="top"
+                    android:inputType="textMultiLine"
+                    android:hint="Transcription will appear here"
+                    android:layout_marginTop="8dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:layout_marginTop="8dp">
+
+                    <Button
+                        android:id="@+id/clearTranscriptionButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Clear"
+                        android:layout_marginEnd="8dp" />
+
+                    <Button
+                        android:id="@+id/sendToChatGptButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Send to ChatGPT" />
+                </LinearLayout>
+
+                <!-- ChatGPT Response Section -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="ChatGPT Response"
+                    android:textStyle="bold"
+                    android:textSize="18sp"
+                    android:layout_marginTop="24dp" />
+
+                <EditText
+                    android:id="@+id/chatGptResponseEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="100dp"
+                    android:background="@android:drawable/editbox_background"
+                    android:padding="8dp"
+                    android:gravity="top"
+                    android:inputType="textMultiLine"
+                    android:hint="ChatGPT response will appear here"
+                    android:layout_marginTop="8dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:layout_marginTop="8dp">
+
+                    <Button
+                        android:id="@+id/clearChatGptResponseButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Clear"
+                        android:layout_marginEnd="8dp" />
+
+                    <Button
+                        android:id="@+id/sendToInputStickButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Send to InputStick" />
+                </LinearLayout>
+
+            </LinearLayout>
+        </ScrollView>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
