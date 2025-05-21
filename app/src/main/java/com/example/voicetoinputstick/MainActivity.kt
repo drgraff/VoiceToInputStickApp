@@ -33,6 +33,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
     private lateinit var toolbar: Toolbar
+    
+    // New UI components
+    private lateinit var transcriptionEditText: EditText
+    private lateinit var chatGptResponseEditText: EditText
+    private lateinit var clearTranscriptionButton: Button
+    private lateinit var sendToChatGptButton: Button
+    private lateinit var clearChatGptResponseButton: Button
+    private lateinit var sendToInputStickButton: Button
 
     private var mediaRecorder: MediaRecorder? = null
     private var audioFilePath: String = ""
@@ -65,6 +73,14 @@ class MainActivity : AppCompatActivity() {
         autoSendCheckbox = findViewById(R.id.autoSendCheckbox)
         drawerLayout = findViewById(R.id.drawer_layout)
         navigationView = findViewById(R.id.nav_view)
+        
+        // Initialize new UI components
+        transcriptionEditText = findViewById(R.id.transcriptionEditText)
+        chatGptResponseEditText = findViewById(R.id.chatGptResponseEditText)
+        clearTranscriptionButton = findViewById(R.id.clearTranscriptionButton)
+        sendToChatGptButton = findViewById(R.id.sendToChatGptButton)
+        clearChatGptResponseButton = findViewById(R.id.clearChatGptResponseButton)
+        sendToInputStickButton = findViewById(R.id.sendToInputStickButton)
 
         // Set up the navigation drawer
         val toggle = ActionBarDrawerToggle(
@@ -101,6 +117,18 @@ class MainActivity : AppCompatActivity() {
 
         autoSendCheckbox.setOnCheckedChangeListener { _, isChecked ->
             SettingsManager.autoSendEnabled = isChecked
+        }
+
+        // Set up button click listeners for new buttons
+        clearTranscriptionButton.setOnClickListener { transcriptionEditText.text.clear() }
+        clearChatGptResponseButton.setOnClickListener { chatGptResponseEditText.text.clear() }
+        sendToChatGptButton.setOnClickListener { sendToChatGpt(transcriptionEditText.text.toString()) }
+        sendToInputStickButton.setOnClickListener { 
+            if (SettingsManager.isInputStickEnabled()) {
+                InputStickWrapper.sendText(this, chatGptResponseEditText.text.toString())
+            } else {
+                Toast.makeText(this, "InputStick is disabled", Toast.LENGTH_SHORT).show()
+            }
         }
 
         stopButton.isEnabled = false
@@ -207,39 +235,48 @@ class MainActivity : AppCompatActivity() {
             
             transcriptionResult.fold(
                 onSuccess = { transcription ->
-                    // Show transcription to user
+                    // Show transcription in the EditText
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(this@MainActivity, "Transcription: $transcription", Toast.LENGTH_LONG).show()
-                    }
-                    
-                    // Send to ChatGPT
-                    val chatGptService = ChatGptService(this@MainActivity)
-                    val chatResult = chatGptService.getChatResponse(transcription)
-                    
-                    chatResult.fold(
-                        onSuccess = { chatResponse ->
-                            withContext(Dispatchers.Main) {
-                                Toast.makeText(this@MainActivity, "Response received from ChatGPT", Toast.LENGTH_SHORT).show()
-                                
-                                // Check if InputStick is enabled
-                                if (SettingsManager.isInputStickEnabled()) {
-                                    // Send to InputStick
-                                    InputStickWrapper.sendText(this@MainActivity, chatResponse)
-                                } else {
-                                    Toast.makeText(this@MainActivity, "InputStick is disabled", Toast.LENGTH_SHORT).show()
-                                }
-                            }
-                        },
-                        onFailure = { error ->
-                            withContext(Dispatchers.Main) {
-                                Toast.makeText(this@MainActivity, "ChatGPT error: ${error.message}", Toast.LENGTH_LONG).show()
-                            }
+                        transcriptionEditText.setText(transcription)
+                        Toast.makeText(this@MainActivity, "Transcription complete", Toast.LENGTH_SHORT).show()
+                        
+                        // If auto-send is enabled, send to ChatGPT automatically
+                        if (SettingsManager.isAutoSendEnabled()) {
+                            sendToChatGpt(transcription)
                         }
-                    )
+                    }
                 },
                 onFailure = { error ->
                     withContext(Dispatchers.Main) {
                         Toast.makeText(this@MainActivity, "Transcription error: ${error.message}", Toast.LENGTH_LONG).show()
+                    }
+                }
+            )
+        }
+    }
+    
+    private fun sendToChatGpt(text: String) {
+        if (text.isEmpty()) {
+            Toast.makeText(this, "No text to send", Toast.LENGTH_SHORT).show()
+            return
+        }
+        
+        Toast.makeText(this, "Sending to ChatGPT...", Toast.LENGTH_SHORT).show()
+        
+        coroutineScope.launch {
+            val chatGptService = ChatGptService(this@MainActivity)
+            val chatResult = chatGptService.getChatResponse(text)
+            
+            chatResult.fold(
+                onSuccess = { chatResponse ->
+                    withContext(Dispatchers.Main) {
+                        chatGptResponseEditText.setText(chatResponse)
+                        Toast.makeText(this@MainActivity, "Response received from ChatGPT", Toast.LENGTH_SHORT).show()
+                    }
+                },
+                onFailure = { error ->
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(this@MainActivity, "ChatGPT error: ${error.message}", Toast.LENGTH_LONG).show()
                     }
                 }
             )
