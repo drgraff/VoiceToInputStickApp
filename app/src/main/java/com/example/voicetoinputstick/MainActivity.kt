@@ -17,15 +17,22 @@ import okhttp3.*
 import org.json.JSONObject
 import java.util.concurrent.TimeUnit
 import com.inputstick.api.basic.InputStickHID
+import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
+import com.google.android.material.navigation.NavigationView
+import androidx.appcompat.widget.Toolbar
 
 class MainActivity : AppCompatActivity() {
     private lateinit var recordButton: Button
     private lateinit var stopButton: Button
     private lateinit var sendButton: Button
-    private lateinit var settingsButton: Button
     private lateinit var timerTextView: TextView
     private lateinit var flashingIndicator: TextView
     private lateinit var autoSendCheckbox: CheckBox
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var navigationView: NavigationView
+    private lateinit var toolbar: Toolbar
 
     private var mediaRecorder: MediaRecorder? = null
     private var audioFilePath: String = ""
@@ -40,27 +47,57 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // Set up toolbar
+        toolbar = findViewById(R.id.toolbar)
+        setSupportActionBar(toolbar)
+
         // Initialize InputStick using the official API call
         InputStickHID.connect(application)
 
         SettingsManager.init(applicationContext)
 
+        // Initialize UI components
         recordButton = findViewById(R.id.recordButton)
         stopButton = findViewById(R.id.stopButton)
         sendButton = findViewById(R.id.sendButton)
-        settingsButton = findViewById(R.id.settingsButton)
         timerTextView = findViewById(R.id.timerTextView)
         flashingIndicator = findViewById(R.id.flashingIndicator)
         autoSendCheckbox = findViewById(R.id.autoSendCheckbox)
+        drawerLayout = findViewById(R.id.drawer_layout)
+        navigationView = findViewById(R.id.nav_view)
+
+        // Set up the navigation drawer
+        val toggle = ActionBarDrawerToggle(
+            this, 
+            drawerLayout, 
+            toolbar, 
+            R.string.navigation_drawer_open, 
+            R.string.navigation_drawer_close
+        )
+        drawerLayout.addDrawerListener(toggle)
+        toggle.syncState()
+
+        // Set up navigation item click listener
+        navigationView.setNavigationItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.nav_home -> {
+                    // We're already on home screen, just close drawer
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                }
+                R.id.nav_settings -> {
+                    // Open settings activity
+                    startActivity(Intent(this, SettingsActivity::class.java))
+                }
+            }
+            drawerLayout.closeDrawer(GravityCompat.START)
+            true
+        }
 
         autoSendCheckbox.isChecked = SettingsManager.isAutoSendEnabled()
 
         recordButton.setOnClickListener { startRecording() }
         stopButton.setOnClickListener { stopRecording() }
         sendButton.setOnClickListener { sendToWhisper(audioFilePath) }
-        settingsButton.setOnClickListener {
-            startActivity(Intent(this, SettingsActivity::class.java))
-        }
 
         autoSendCheckbox.setOnCheckedChangeListener { _, isChecked ->
             SettingsManager.autoSendEnabled = isChecked
@@ -76,6 +113,15 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         // Refresh UI in case settings changed
         autoSendCheckbox.isChecked = SettingsManager.isAutoSendEnabled()
+    }
+
+    override fun onBackPressed() {
+        // Close drawer on back press if it's open
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START)
+        } else {
+            super.onBackPressed()
+        }
     }
 
     private fun checkPermissions() {
