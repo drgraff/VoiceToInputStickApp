@@ -5,6 +5,7 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 
 class SettingsActivity : AppCompatActivity() {
+
     private lateinit var apiKeyInput: EditText
     private lateinit var whisperUrlInput: EditText
     private lateinit var chatGptUrlInput: EditText
@@ -18,6 +19,7 @@ class SettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
 
+        // Initialize UI elements
         apiKeyInput = findViewById(R.id.apiKeyInput)
         whisperUrlInput = findViewById(R.id.whisperUrlInput)
         chatGptUrlInput = findViewById(R.id.chatGptUrlInput)
@@ -27,23 +29,25 @@ class SettingsActivity : AppCompatActivity() {
         inputStickCheckbox = findViewById(R.id.inputStickCheckbox)
         saveButton = findViewById(R.id.saveButton)
 
-        apiKeyInput.setText(SettingsManager.getOpenAiApiKey())
-        whisperUrlInput.setText(SettingsManager.getWhisperUrl())
-        chatGptUrlInput.setText(SettingsManager.getChatGptUrl())
-        modelInput.setText(SettingsManager.getModel())
-        languageInput.setText(SettingsManager.getLanguage())
+        // Populate UI with existing settings
+        apiKeyInput.setText(SettingsManager.apiKey)
+        whisperUrlInput.setText(SettingsManager.storedWhisperUrl)
+        chatGptUrlInput.setText(SettingsManager.storedChatGptUrl)
+        modelInput.setText(SettingsManager.storedModel)
+        languageInput.setText(SettingsManager.storedLanguage)
         autoSendCheckbox.isChecked = SettingsManager.isAutoSendEnabled()
         inputStickCheckbox.isChecked = SettingsManager.isInputStickEnabled()
 
+        // Save settings on button click
         saveButton.setOnClickListener {
             SettingsManager.apiKey = apiKeyInput.text.toString()
-            SettingsManager.whisperUrl = whisperUrlInput.text.toString()
-            SettingsManager.chatGptUrl = chatGptUrlInput.text.toString()
-            SettingsManager.model = modelInput.text.toString()
-            SettingsManager.language = languageInput.text.toString()
+            SettingsManager.storedWhisperUrl = whisperUrlInput.text.toString()
+            SettingsManager.storedChatGptUrl = chatGptUrlInput.text.toString()
+            SettingsManager.storedModel = modelInput.text.toString()
+            SettingsManager.storedLanguage = languageInput.text.toString()
             SettingsManager.setAutoSendEnabled(autoSendCheckbox.isChecked)
             SettingsManager.setInputStickEnabled(inputStickCheckbox.isChecked)
-            finish()
+            finish()  // Close the activity
         }
     }
 }
