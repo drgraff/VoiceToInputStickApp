@@ -3,6 +3,8 @@ package com.example.voicetoinputstick
 import android.content.Intent
 import android.os.Bundle
 import android.widget.*
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -16,7 +18,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var apiKeyInput: EditText
     private lateinit var whisperUrlInput: EditText
     private lateinit var chatGptUrlInput: EditText
-    private lateinit var modelInput: EditText
+    private lateinit var modelInput: Spinner
     private lateinit var languageInput: EditText
     private lateinit var autoSendCheckbox: CheckBox
     private lateinit var inputStickCheckbox: CheckBox
@@ -81,7 +83,24 @@ class SettingsActivity : AppCompatActivity() {
         apiKeyInput.setText(SettingsManager.apiKey)
         whisperUrlInput.setText(SettingsManager.storedWhisperUrl)
         chatGptUrlInput.setText(SettingsManager.storedChatGptUrl)
-        modelInput.setText(SettingsManager.storedModel)
+        
+        // Setup model spinner
+        val modelAdapter = ArrayAdapter.createFromResource(
+            this,
+            R.array.openai_models,
+            android.R.layout.simple_spinner_item
+        ).also { adapter ->
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            modelInput.adapter = adapter
+        }
+        
+        // Select the currently stored model
+        val currentModel = SettingsManager.storedModel
+        val modelPosition = resources.getStringArray(R.array.openai_models).indexOf(currentModel)
+        if (modelPosition >= 0) {
+            modelInput.setSelection(modelPosition)
+        }
+        
         languageInput.setText(SettingsManager.storedLanguage)
         autoSendCheckbox.isChecked = SettingsManager.isAutoSendEnabled()
         inputStickCheckbox.isChecked = SettingsManager.isInputStickEnabled()
@@ -92,7 +111,7 @@ class SettingsActivity : AppCompatActivity() {
             SettingsManager.apiKey = apiKeyInput.text.toString()
             SettingsManager.storedWhisperUrl = whisperUrlInput.text.toString()
             SettingsManager.storedChatGptUrl = chatGptUrlInput.text.toString()
-            SettingsManager.storedModel = modelInput.text.toString()
+            SettingsManager.storedModel = modelInput.selectedItem.toString()
             SettingsManager.storedLanguage = languageInput.text.toString()
             SettingsManager.autoSendEnabled = autoSendCheckbox.isChecked
             SettingsManager.inputStickEnabled = inputStickCheckbox.isChecked
