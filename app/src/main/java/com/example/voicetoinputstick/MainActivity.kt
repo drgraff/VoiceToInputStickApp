@@ -16,7 +16,7 @@ import android.content.Intent
 import okhttp3.*
 import org.json.JSONObject
 import java.util.concurrent.TimeUnit
-import com.inputstick.api.ConnectionManager
+import com.inputstick.api.basic.InputStickHID
 
 class MainActivity : AppCompatActivity() {
     private lateinit var recordButton: Button
@@ -40,9 +40,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Init InputStick connection system
-        ConnectionManager.init(applicationContext)
-        ConnectionManager.getInstance().connect() // optional
+        // Initialize InputStick using the official API call
+        InputStickHID.connect(application)
 
         SettingsManager.init(applicationContext)
 
@@ -118,41 +117,29 @@ class MainActivity : AppCompatActivity() {
         }
         mediaRecorder = null
         isRecording = false
-
-        stopTimer()
-        stopFlashing()
+        timerJob?.cancel()
+        flashingJob?.cancel()
 
         recordButton.isEnabled = true
         stopButton.isEnabled = false
-
-        if (autoSendCheckbox.isChecked) {
-            sendToWhisper(audioFilePath)
-        }
+        flashingIndicator.text = ""
     }
 
     private fun startTimer() {
         timerJob = coroutineScope.launch {
             while (isRecording) {
                 val elapsed = System.currentTimeMillis() - startTime
-                val seconds = (elapsed / 1000) % 60
-                val minutes = (elapsed / 1000) / 60
-                timerTextView.text = String.format("%02d:%02d", minutes, seconds)
+                timerTextView.text = String.format("%02d:%02d", (elapsed / 1000) / 60, (elapsed / 1000) % 60)
                 delay(500)
             }
         }
-    }
-
-    private fun stopTimer() {
-        timerJob?.cancel()
-        timerTextView.text = ""
     }
 
     private fun startFlashing() {
         flashingJob = coroutineScope.launch {
             var visible = false
             while (isRecording) {
-                flashingIndicator.text = if (visible) "\u25cf" else ""
-                flashingIndicator.setTextColor(android.graphics.Color.RED)
+                flashingIndicator.text = if (visible) "●" else ""
                 visible = !visible
                 delay(500)
             }
@@ -160,115 +147,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun stopFlashing() {
-        flashingJob?.cancel()
-        flashingIndicator.text = ""
-    }
-
     private fun sendToWhisper(filePath: String) {
-        Toast.makeText(this, "Sending to Whisper...", Toast.LENGTH_SHORT).show()
-
-        coroutineScope.launch(Dispatchers.IO) {
-            try {
-                val apiKey = SettingsManager.getOpenAiApiKey()
-                val model = SettingsManager.getModel()
-                val whisperUrl = SettingsManager.getWhisperUrl()
-                val language = SettingsManager.getLanguage()
-                val client = OkHttpClient.Builder().connectTimeout(60, TimeUnit.SECONDS).build()
-                val file = File(filePath)
-                val mediaType = MediaType.parse("audio/m4a")
-
-                val body = MultipartBody.Builder().setType(MultipartBody.FORM)
-                    .addFormDataPart("model", "whisper-1")
-                    .addFormDataPart("file", file.name, RequestBody.create(mediaType, file))
-                    .addFormDataPart("language", language)
-                    .build()
-
-                val request = Request.Builder()
-                    .url(whisperUrl)
-                    .addHeader("Authorization", "Bearer $apiKey")
-                    .post(body)
-                    .build()
-
-                val response = client.newCall(request).execute()
-                val responseBody = response.body()?.string()
-
-                if (!response.isSuccessful) {
-                    throw Exception("Whisper error: ${response.code()} ${response.message()}\n$responseBody")
-                }
-
-                val transcription = JSONObject(responseBody ?: "{}").optString("text")
-
-                runOnUiThread {
-                    Toast.makeText(this@MainActivity, "Transcribed: $transcription", Toast.LENGTH_LONG).show()
-                    sendToChatGPT(transcription)
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                runOnUiThread {
-                    Toast.makeText(this@MainActivity, "Whisper error: ${e.message}", Toast.LENGTH_LONG).show()
-                }
-            }
-        }
-    }
-
-    private fun sendToChatGPT(transcription: String) {
-        val apiKey = SettingsManager.getOpenAiApiKey()
-        val model = SettingsManager.getModel()
-        val chatGptUrl = SettingsManager.getChatGptUrl()
-        val client = OkHttpClient()
-
-        val json = """
-            {
-                "model": "$model",
-                "messages": [
-                  {"role": "user", "content": "${transcription.replace("\"", "\\\"")}"}
-                ]
-            }
-        """.trimIndent()
-
-        val requestBody = RequestBody.create(MediaType.parse("application/json"), json)
-        val request = Request.Builder()
-            .url(chatGptUrl)
-            .addHeader("Authorization", "Bearer $apiKey")
-            .post(requestBody)
-            .build()
-
-        coroutineScope.launch(Dispatchers.IO) {
-            try {
-                val response = client.newCall(request).execute()
-                val responseText = response.body()?.string()
-
-                if (!response.isSuccessful) {
-                    throw Exception("ChatGPT error: ${response.code()} ${response.message()}\n$responseText")
-                }
-
-                val jsonResponse = JSONObject(responseText ?: "")
-                val reply = jsonResponse.getJSONArray("choices")
-                    .getJSONObject(0).getJSONObject("message")
-                    .getString("content")
-
-                runOnUiThread {
-                    Toast.makeText(this@MainActivity, "Response: $reply", Toast.LENGTH_LONG).show()
-                    sendToInputStick(reply)
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                runOnUiThread {
-                    Toast.makeText(this@MainActivity, "ChatGPT error: ${e.message}", Toast.LENGTH_LONG).show()
-                }
-            }
-        }
-    }
-
-    private fun sendToInputStick(text: String) {
-        if (SettingsManager.isInputStickEnabled()) {
-            try {
-                InputStickWrapper.sendText(applicationContext, text)
-                Toast.makeText(this, "Sent to InputStick", Toast.LENGTH_SHORT).show()
-            } catch (e: Exception) {
-                Toast.makeText(this, "InputStick error: ${e.message}", Toast.LENGTH_LONG).show()
-            }
-        }
+        // Your implementation for sending audio to Whisper or other processing
+        // When ready to send text to InputStick, use:
+        // InputStickWrapper.sendText(this, recognizedText)
     }
 }
