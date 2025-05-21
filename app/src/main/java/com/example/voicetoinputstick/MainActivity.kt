@@ -152,6 +152,20 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         // Refresh UI in case settings changed
         autoSendCheckbox.isChecked = SettingsManager.isAutoSendEnabled()
+        
+        // Apply dark mode setting when returning from other activities
+        val currentNightMode = if (SettingsManager.isDarkModeEnabled()) {
+            AppCompatDelegate.MODE_NIGHT_YES
+        } else {
+            AppCompatDelegate.MODE_NIGHT_NO
+        }
+        
+        // Check if night mode has changed and recreate if necessary
+        if (AppCompatDelegate.getDefaultNightMode() != currentNightMode) {
+            AppCompatDelegate.setDefaultNightMode(currentNightMode)
+            // Activity needs to be recreated for theme to take effect
+            recreate()
+        }
     }
 
     override fun onBackPressed() {
