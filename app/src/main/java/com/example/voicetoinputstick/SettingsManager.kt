@@ -46,10 +46,6 @@ object SettingsManager {
         set(value) = prefs.edit().putBoolean(KEY_AUTO_SEND, value).apply()
     
     fun isAutoSendEnabled(): Boolean = autoSendEnabled
-    
-    fun setAutoSendEnabled(enabled: Boolean) {
-        autoSendEnabled = enabled
-    }
 
     // InputStick
     var inputStickEnabled: Boolean
@@ -57,10 +53,6 @@ object SettingsManager {
         set(value) = prefs.edit().putBoolean(KEY_INPUTSTICK_ENABLED, value).apply()
         
     fun isInputStickEnabled(): Boolean = inputStickEnabled
-    
-    fun setInputStickEnabled(enabled: Boolean) {
-        inputStickEnabled = enabled
-    }
 
     // Whisper URL
     var storedWhisperUrl: String
