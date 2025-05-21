@@ -34,17 +34,19 @@ class WhisperService(private val context: Context) {
                 return@withContext Result.failure(IOException("Audio file does not exist"))
             }
             
-            // For now, simulate successful transcription
-            // In a real implementation, this would call the Whisper API
-            Log.d("WhisperService", "Simulating transcription for file: ${file.name}")
+            // Call the OpenAI Whisper API
+            Log.d("WhisperService", "Sending audio file to Whisper API: ${file.name}")
             
-            // Simulate API call delay
-            kotlinx.coroutines.delay(1000)
+            val whisperUrl = SettingsManager.getWhisperUrl()
+            val language = SettingsManager.getLanguage()
             
-            return@withContext Result.success("This is a simulated transcription of your audio")
-        } catch (e: Exception) {
-            Log.e("WhisperService", "Transcription error", e)
-            return@withContext Result.failure(e)
-        }
-    }
-}
+            val requestBody = MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart(
+                    "file", 
+                    file.name,
+                    RequestBody.create("audio/mpeg".toMediaTypeOrNull(), file)
+                )
+                .addFormDataPart("model", "whisper-1")
+                .addFormDataPart("language", language)
+                .build()
