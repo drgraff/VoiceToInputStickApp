@@ -51,6 +51,12 @@
         android:layout_height="wrap_content"
         android:text="Enable InputStick output" />
 
+    <CheckBox
+        android:id="@+id/darkModeCheckbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Enable Dark Mode" />
+
     <Button
         android:id="@+id/saveButton"
         android:layout_width="match_parent"

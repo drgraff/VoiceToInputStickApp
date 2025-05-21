@@ -12,6 +12,7 @@ object SettingsManager {
     private const val KEY_INPUTSTICK_ENABLED = "inputstick_enabled"
     private const val KEY_WHISPER_URL = "whisper_url"
     private const val KEY_CHATGPT_URL = "chatgpt_url"
+    private const val KEY_DARK_MODE = "dark_mode"
 
     private lateinit var prefs: SharedPreferences
 
@@ -69,4 +70,11 @@ object SettingsManager {
         set(value) = prefs.edit().putString(KEY_CHATGPT_URL, value).apply()
 
     fun getChatGptUrl(): String = storedChatGptUrl
+
+    // Dark Mode
+    var darkModeEnabled: Boolean
+        get() = prefs.getBoolean(KEY_DARK_MODE, false)
+        set(value) = prefs.edit().putBoolean(KEY_DARK_MODE, value).apply()
+        
+    fun isDarkModeEnabled(): Boolean = darkModeEnabled
 }
