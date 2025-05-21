@@ -26,6 +26,7 @@ import androidx.appcompat.widget.Toolbar
 
 class MainActivity : AppCompatActivity() {
     private lateinit var recordButton: Button
+    private lateinit var pauseButton: Button
     private lateinit var stopButton: Button
     private lateinit var sendButton: Button
     private lateinit var timerTextView: TextView
@@ -46,9 +47,11 @@ class MainActivity : AppCompatActivity() {
     private var mediaRecorder: MediaRecorder? = null
     private var audioFilePath: String = ""
     private var isRecording = false
+    private var isPaused = false
     private var timerJob: Job? = null
     private var flashingJob: Job? = null
     private var startTime: Long = 0
+    private var pausedTime: Long = 0
 
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
@@ -77,6 +80,7 @@ class MainActivity : AppCompatActivity() {
         
         // Initialize UI components
         recordButton = findViewById(R.id.recordButton)
+        pauseButton = findViewById(R.id.pauseButton)
         stopButton = findViewById(R.id.stopButton)
         sendButton = findViewById(R.id.sendButton)
         timerTextView = findViewById(R.id.timerTextView)
@@ -123,6 +127,7 @@ class MainActivity : AppCompatActivity() {
         autoSendCheckbox.isChecked = SettingsManager.isAutoSendEnabled()
 
         recordButton.setOnClickListener { startRecording() }
+        pauseButton.setOnClickListener { togglePauseRecording() }
         stopButton.setOnClickListener { stopRecording() }
         sendButton.setOnClickListener { sendToWhisper(audioFilePath) }
 
@@ -143,6 +148,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         stopButton.isEnabled = false
+        pauseButton.isEnabled = false
         flashingIndicator.text = ""
 
         checkPermissions()
@@ -200,11 +206,53 @@ class MainActivity : AppCompatActivity() {
         }
 
         isRecording = true
+        isPaused = false
         startTime = System.currentTimeMillis()
+        pausedTime = 0
 
         recordButton.isEnabled = false
+        pauseButton.isEnabled = true
         stopButton.isEnabled = true
 
+        startTimer()
+        startFlashing()
+    }
+
+    private fun togglePauseRecording() {
+        if (!isRecording) return
+
+        if (isPaused) {
+            resumeRecording()
+        } else {
+            pauseRecording()
+        }
+    }
+
+    private fun pauseRecording() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            mediaRecorder?.pause()
+        }
+        
+        isPaused = true
+        pausedTime = System.currentTimeMillis() - startTime
+        
+        pauseButton.text = getString(R.string.resume_recording)
+        
+        timerJob?.cancel()
+        flashingJob?.cancel()
+        flashingIndicator.text = "⏸" // Pause symbol
+    }
+
+    private fun resumeRecording() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            mediaRecorder?.resume()
+        }
+        
+        isPaused = false
+        startTime = System.currentTimeMillis() - pausedTime
+        
+        pauseButton.text = getString(R.string.pause_recording)
+        
         startTimer()
         startFlashing()
     }
@@ -216,17 +264,20 @@ class MainActivity : AppCompatActivity() {
         }
         mediaRecorder = null
         isRecording = false
+        isPaused = false
         timerJob?.cancel()
         flashingJob?.cancel()
 
         recordButton.isEnabled = true
+        pauseButton.isEnabled = false
+        pauseButton.text = getString(R.string.pause_recording)
         stopButton.isEnabled = false
         flashingIndicator.text = ""
     }
 
     private fun startTimer() {
         timerJob = coroutineScope.launch {
-            while (isRecording) {
+            while (isRecording && !isPaused) {
                 val elapsed = System.currentTimeMillis() - startTime
                 timerTextView.text = String.format("%02d:%02d", (elapsed / 1000) / 60, (elapsed / 1000) % 60)
                 delay(500)
@@ -237,12 +288,14 @@ class MainActivity : AppCompatActivity() {
     private fun startFlashing() {
         flashingJob = coroutineScope.launch {
             var visible = false
-            while (isRecording) {
+            while (isRecording && !isPaused) {
                 flashingIndicator.text = if (visible) "●" else ""
                 visible = !visible
                 delay(500)
             }
-            flashingIndicator.text = ""
+            if (!isRecording) {
+                flashingIndicator.text = ""
+            }
         }
     }
 

@@ -62,6 +62,14 @@
                     android:layout_marginTop="16dp" />
 
                 <Button
+                    android:id="@+id/pauseButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Pause Recording"
+                    android:layout_marginTop="12dp"
+                    android:enabled="false" />
+
+                <Button
                     android:id="@+id/stopButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
