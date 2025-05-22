@@ -666,7 +666,7 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 	/*
 	 * Checks if all local (Android device) AND remote (InputStick device) report buffers are empty.
 	 *
-	 * @return true if local raw HID buffer is empty, false otherwise
+	 * @return true if all local and remote buffers are empty, false otherwise
 	 */
 	public static boolean areAllRemoteBuffersEmpty() {
 		return (isKeyboardRemoteBufferEmpty() && isMouseRemoteBufferEmpty() && isConsumerRemoteBufferEmpty() && isRawHIDRemoteBufferEmpty());
