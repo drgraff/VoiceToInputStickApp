@@ -72,6 +72,8 @@ class MainActivity : AppCompatActivity() {
         // Set up toolbar
         toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
+        // Remove the title from the toolbar
+        supportActionBar?.setDisplayShowTitleEnabled(false)
 
         // Initialize InputStick using the official API call
         InputStickHID.connect(application)

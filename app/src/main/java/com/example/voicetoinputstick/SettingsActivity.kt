@@ -35,6 +35,8 @@ class SettingsActivity : AppCompatActivity() {
         // Set up toolbar
         toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
+        // Remove the title from the toolbar
+        supportActionBar?.setDisplayShowTitleEnabled(false)
 
         // Initialize navigation drawer components
         drawerLayout = findViewById(R.id.drawer_layout)
