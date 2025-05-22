@@ -351,7 +351,7 @@ public class HIDKeycodes {
         128 + 28, //089 Y [SHIFT]
         128 + 29, //090 Z [SHIFT]
         47, //091 [
-        49, /*092 \   */
+        49, //092 \   
         48, //093 ]
         128 + 35, //094 ^ [SHIFT]
         128 + 45, //095 _ [SHIFT] (underscore)

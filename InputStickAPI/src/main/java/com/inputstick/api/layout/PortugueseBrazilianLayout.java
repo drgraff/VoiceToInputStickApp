@@ -278,8 +278,9 @@ public class PortugueseBrazilianLayout  extends KeyboardLayout {
 	/*	5f	*/	{	-1	,	0			,	0		,	0		,	0	,	0	}	,
 	
 	
-	/*	73	*/	/*{	0	,	002f	,	003f	,	-1	,	00b0	,	-1	}	,*/
-	/*	7e	*/	/*{	0	,	002e	,	002e	,	-1	,	-1	,	-1	}	,*/
+	// Commented out code:
+	// /*	73	*/	{	0	,	002f	,	003f	,	-1	,	00b0	,	-1	}	,
+	// /*	7e	*/	{	0	,	002e	,	002e	,	-1	,	-1	,	-1	}	,
 	
 
 	
