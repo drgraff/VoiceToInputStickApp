@@ -172,7 +172,7 @@ public class BTService {
 				event(BTService.EVENT_ERROR, InputStickError.ERROR_BLUETOOTH_INVALID_MAC);
 			}	
 		} catch (NoClassDefFoundError e) {
-			event(BTService.EVENT_ERROR, InputStickError.ERROR_BLUETOOTH_BT40_NOT_SUPPRTED);		
+			event(BTService.EVENT_ERROR, InputStickError.ERROR_BLUETOOTH_BT40_NOT_SUPPORTED);		
 		}
     }  
     
